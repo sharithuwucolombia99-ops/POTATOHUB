@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>POTATOHUB KEY SYSTEM</title>
+<style>
+body{
+    background:#0a0a0a;
+    font-family:Arial,Helvetica,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+.box{
+    background:#111;
+    padding:25px;
+    border:3px solid;
+    border-image: linear-gradient(90deg,red,orange,yellow,lime,cyan,blue,magenta) 1;
+    width:340px;
+    text-align:center;
+    animation:rgb 5s linear infinite;
+}
+@keyframes rgb{
+    0%{border-image: linear-gradient(0deg,red,orange,yellow,lime,cyan,blue,magenta) 1;}
+    100%{border-image: linear-gradient(360deg,red,orange,yellow,lime,cyan,blue,magenta) 1;}
+}
+input,button{
+    width:90%;
+    padding:10px;
+    margin:6px;
+    background:#000;
+    border:1px solid #444;
+    color:white;
+}
+button{
+    cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>🥔 POTATOHUB 🥔</h2>
+<p>Créditos: <span id="credits">0</span></p>
+<p>Tiempo activo: <span id="time">0h</span></p>
+
+<button onclick="claimDaily()">🎁 Daily +3</button>
+
+<input id="code" placeholder="Código">
+<button onclick="redeem()">Canjear código</button>
+
+<button onclick="useCredit()">Usar 1 crédito (6h)</button>
+</div>
+
+<script>
+const CREDIT_HOURS = 6;
+let credits = Number(localStorage.getItem("credits") || 0);
+let expire = Number(localStorage.getItem("expire") || 0);
+let lastDaily = localStorage.getItem("daily") || "";
+
+function update(){
+    document.getElementById("credits").innerText = credits;
+    let t = Math.max(0, expire - Date.now());
+    let h = Math.floor(t / 3600000);
+    let m = Math.floor((t % 3600000) / 60000);
+    document.getElementById("time").innerText = h+"h "+m+"m";
+}
+
+function claimDaily(){
+    let today = new Date().toDateString();
+    if(lastDaily === today){
+        alert("Ya reclamaste hoy 😐");
+        return;
+    }
+    credits += 3;
+    lastDaily = today;
+    localStorage.setItem("credits",credits);
+    localStorage.setItem("daily",lastDaily);
+    update();
+}
+
+function redeem(){
+    let c = document.getElementById("code").value.trim();
+    if(c === "papoisupremo"){
+        credits += 50;
+        alert("+50 créditos 🤑");
+    }else{
+        alert("Código inválido 😐");
+        return;
+    }
+    localStorage.setItem("credits",credits);
+    update();
+}
+
+function useCredit(){
+    if(credits <= 0){
+        alert("Sin créditos 😭");
+        return;
+    }
+    credits--;
+    let now = Date.now();
+    if(expire < now) expire = now;
+    expire += CREDIT_HOURS * 3600000;
+
+    localStorage.setItem("credits",credits);
+    localStorage.setItem("expire",expire);
+    update();
+}
+
+setInterval(update,1000);
+update();
+</script>
+
+</body>
+</html>
